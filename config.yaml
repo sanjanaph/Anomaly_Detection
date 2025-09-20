@@ -1,0 +1,102 @@
+# Healthcare Audit Log Anomaly Detection Configuration
+
+# Data Configuration
+data:
+  input_file: "Caseauditdetails_LIS 3.xlsx"
+  encoding: "utf-8"
+  date_columns: ["auditdate"]
+
+# Isolation Forest Parameters
+isolation_forest:
+  contamination: 0.1  # Expected anomaly rate (10%)
+  random_state: 42    # For reproducible results
+  n_estimators: 100   # Number of trees
+  max_samples: "auto" # Number of samples per tree
+  max_features: 1.0   # Number of features per tree
+
+# Feature Engineering
+features:
+  temporal:
+    - "hour_of_day"
+    - "day_of_week"
+    - "is_weekend"
+    - "is_after_hours"
+  
+  behavioral:
+    - "user_action_frequency"
+    - "user_unique_actions"
+    - "user_geographic_diversity"
+  
+  categorical:
+    - "role_encoded"
+    - "action_encoded"
+  
+  organizational:
+    - "org_size"
+    - "has_coordinates"
+
+# User Roles and Permissions
+roles:
+  "Pathologist Assistant":
+    allowed_actions:
+      - "Logged In"
+      - "Viewed Final Report"
+      - "Viewed Case Information"
+      - "Revised as Addendum"
+      - "Added Supplemental"
+      - "Modified Diagnosis"
+      - "Previewed Report"
+  
+  "Admin":
+    allowed_actions:
+      - "Logged In"
+      - "Viewed Final Report"
+      - "Modified Diagnosis"
+      - "Added Supplemental"
+      - "Create User"
+      - "Delete User"
+  
+  "Lab Technician":
+    allowed_actions:
+      - "Logged In"
+      - "Viewed Case Information"
+      - "Collected Sample"
+
+# Sensitive Actions (high-risk operations)
+sensitive_actions:
+  - "Revised as Addendum"
+  - "Modified Diagnosis"
+  - "Create User"
+  - "Delete User"
+
+# Geographic Configuration
+geographic:
+  cities:
+    "Hudson": [42.3770, -71.5661]
+    "Boston": [42.3601, -71.0589]
+    "New York": [40.7128, -74.0060]
+    "Chicago": [41.8781, -87.6298]
+    "San Francisco": [37.7749, -122.4194]
+  
+  velocity_threshold_km: 1500  # Maximum realistic travel distance in 30 minutes
+
+# Visualization Settings
+visualization:
+  figure_size: [15, 12]
+  style: "default"
+  color_palette: "RdYlBu_r"
+  bins: 30
+  alpha: 0.7
+
+# Output Configuration
+output:
+  save_results: true
+  results_file: "anomaly_results.csv"
+  report_file: "anomaly_report.txt"
+  charts_file: "anomaly_charts.png"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "anomaly_detection.log"
